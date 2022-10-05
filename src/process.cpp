@@ -13,7 +13,7 @@ using std::vector;
 
 Process::Process(int p) {
 	pid = p;
-	ram = LinuxParser::Ram(pid);
+  ram = LinuxParser::Ram(pid);
 }
 
 // TODO: Return this process's ID
