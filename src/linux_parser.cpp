@@ -191,11 +191,10 @@ string LinuxParser::Command(int pid) {
 
 // Read and return the memory used by a process
 string LinuxParser::Ram(int pid) {
-	string line, key, ram;
+	string line, key, ram="0";
 	std::ifstream stream(kProcDirectory + std::to_string(pid) + kStatusFilename);
   	std::istringstream linestream;
-  	while (stream.is_open()) {
-    	std::getline(stream, line);
+  	while (std::getline(stream, line)) {
       	linestream.str(line);
     	linestream >> key;
       	if (key == "VmSize:") { 
