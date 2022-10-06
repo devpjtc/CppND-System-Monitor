@@ -14,6 +14,7 @@ using std::vector;
 Process::Process(int p) {
 	pid = p;
   ram = LinuxParser::Ram(pid);
+  SetCpuUtilAndUptime();
 }
 
 // TODO: Return this process's ID
@@ -21,10 +22,11 @@ int Process::Pid() { return pid; }
 
 // TODO: Return this process's CPU utilization
 // formula used from https://stackoverflow.com/questions/16726779/how-do-i-get-the-total-cpu-usage-of-an-application-from-proc-pid-stat/16736599#16736599
-float Process::CpuUtilization() {
+
+void Process::SetCpuUtilAndUptime() {
   int uptime = LinuxParser::UpTime();
   vector<int> cpu_values = LinuxParser::CpuUtilization(pid);
-  long utime, stime, cutime, cstime, starttime, totalTime, seconds;
+  long utime, stime, cutime, cstime, starttime, totalTime;
   utime = cpu_values[0];
   stime = cpu_values[1];
   cutime = cpu_values[2];
@@ -32,8 +34,12 @@ float Process::CpuUtilization() {
   starttime = cpu_values[4];
   long hertz = sysconf(_SC_CLK_TCK);
   totalTime = utime + stime + cutime + cstime;
-  seconds = uptime - (starttime / hertz);
-  return (float(totalTime) / float(hertz)) / float(seconds); 
+  uptime_ = uptime - (starttime / hertz);
+  cpuUtil = (float(totalTime) / float(hertz)) / float(uptime_); 
+}
+
+float Process::CpuUtilization() {
+  return cpuUtil;
 }
 
 // TODO: Return the command that generated this process
@@ -47,9 +53,7 @@ string Process::User() { return LinuxParser::User(pid); }
 
 // TODO: Return the age of this process (in seconds)
 long int Process::UpTime() {
-	vector<int> cpu_values = LinuxParser::CpuUtilization(pid);
-  	long starttime = cpu_values[4];
-  	return starttime;
+	return uptime_;
 }
 
 // TODO: Overload the "less than" comparison operator for Process objects
